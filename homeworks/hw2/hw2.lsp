@@ -11,6 +11,7 @@
 
 (print (DFS '((A (B)) C (D))))
 
+; applies DFID_HELPER to the tree repeatedly with larger and larger search depths
 (defun DFID (TREE MAX_DEPTH)
     (cond
         ((> MAX_DEPTH 0) (append (DFID TREE (- MAX_DEPTH 1)) (DFID_HELPER TREE MAX_DEPTH)))
@@ -18,6 +19,7 @@
     )
 )
 
+; performs actual DFID for each max_depthb
 (defun DFID_HELPER (TREE MAX_DEPTH)
     (cond
         ; when we get to end of level rest of TREE is NIL

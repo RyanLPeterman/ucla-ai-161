@@ -52,8 +52,9 @@
            (new_c (+ (- 3 (second s)) c)))
         (cond
             ; if somehow > 3 missionaries or carnivores result
-            ; or if number of carnivores on either side too much
-            ((or (> new_m 3) (> new_c 3) (> new_c new_m) (> (- 3 new_c) (- 3 new_m))) NIL)  
+            ; or if number of carnivores on either side greater than
+            ; missionaries and missionaries > 0
+            ((or (> new_m 3) (> new_c 3) (and (> new_m 0) (> new_c new_m)) (and (> (- 3 new_m) 0) (> (- 3 new_c) (- 3 new_m)))) NIL)  
             ; otherwise return a list containing new state by flipping boat and setting
             ; number of missionaries and carnivores
             (T (list (list new_m new_c (not (third s)))))
@@ -87,24 +88,76 @@
 ; each element of STATES in turn. If any of those searches reaches the final
 ; state, MULT-DFS returns the complete path from the initial state to the goal
 ; state. Otherwise, it returns NIL.
-(defun mult-dfs (states path depth)
-  NIL)
+
+; path - path from init to current state
+; states - list of states from current state
+; depth - depth
+(defun mult-dfs (states path depth) 
+    (let* ((first_dfs (single-dfs (first states) path depth)))
+        (cond
+            ; no states to iterate through
+            ((null states) NIL)
+            ; no depth left TODO: might be off by one
+            ((= depth 0) NIL)
+            ; if dfs on first succ state is null try next
+            ((null first_dfs) (mult-dfs (rest states) path depth))
+            ; if first dfs not null just return the complete path
+            (T first_dfs)
+        )
+    )
+)
 
 ; SINGLE-DFS does a single depth-first iteration to the given depth. It takes
 ; three arguments: a state (S), the path from the initial state to S (PATH), and
 ; the depth (DEPTH). If S is the initial state in our search, PATH should be
 ; NIL. It performs a depth-first search starting at the given state. It returns
 ; the path from the initial state to the goal state, if any, or NIL otherwise.
+
+; s - a state
+; path - initial state to s
+; depth - depth
 (defun single-dfs (s path depth)
-  NIL)
+    (cond
+        ; if current state is goal, then return path so far
+        ((final-state s) path)
+        ; not goal state and depth ran out
+        ((= depth 0) NIL)
+        ; not goal state, try single-dfs on all successor states
+        ; with depth reduced by 1
+        (T (mult-dfs (succ-fn s) (append path (list s)) (- depth 1)))
+    )
+)
 
 ; ID-DFS is the top-level function. It takes two arguments: an initial state (S)
 ; and a search depth (DEPTH). ID-DFS performs a series of depth-first
 ; iterations, starting from the given depth until a solution is found. It
 ; returns the path from the initial state to the goal state. The very first call
 ; to ID-DFS should use depth = 0.
+
+; s - initial state
+; depth - search depth
 (defun id-dfs (s depth)
-  NIL)
+    (cond
+        ; if still have depth recurse
+        ((> depth 0) 
+            (let*
+                ; try smaller depth first
+                ((prev_depth (id-dfs s (- depth 1))))
+                (cond
+                    ; prev_depth resulted in a path found
+                    ((listp prev_depth) prev_depth)
+                    ; prev_depth did not result in a path found
+                    ; try again at this depth
+                    ((null prev_depth) (single-dfs s NIL depth))
+                )
+            )
+        )
+        ; base case we try dfs with depth of 0
+        ((= depth 0) (single-dfs s NIL depth))
+        ; negative depth
+        (T NIL)
+    )
+)
 
 ; Function execution examples
 
@@ -122,4 +175,8 @@
 ; SUCC-FN returns all of the legal states that can result from applying
 ; operators to the current state.
 ; (succ-fn '(3 3 t)) -> ((0 1 NIL) (1 1 NIL) (0 2 NIL))
+(print (succ-fn '(3 3 t)))
 ; (succ-fn '(1 1 t)) -> ((3 2 NIL) (3 3 NIL))
+(print (succ-fn '(1 1 t)))
+
+(print (id-dfs '(3 3 T) 12))
