@@ -1,6 +1,11 @@
-; performs left to right DFS on input TREE and returns node visit order list
+; Name: Ryan Peterman
+; UID: 704269982
+; Discussion 1A
+
+; #1: performs left to right DFS on input TREE and returns node visit order list
 (defun DFS (TREE)
     (cond
+        ; empty tree
         ((null TREE) NIL)  
         ; base case we are at a leaf
         ((atom TREE) (list TREE))
@@ -9,15 +14,16 @@
     )
 )
 
-; applies DFID_HELPER to the tree repeatedly with larger and larger search depths
+; #2: applies DFID_HELPER to the tree repeatedly with larger and larger search depths
 (defun DFID (TREE MAX_DEPTH)
     (cond
+        ; appends prev smaller dfid traversal to current depth
         ((> MAX_DEPTH 0) (append (DFID TREE (- MAX_DEPTH 1)) (DFID_HELPER TREE MAX_DEPTH)))
         (T NIL)
     )
 )
 
-; performs actual DFID for each max_depthb
+; performs actual DFID for each max_depth
 (defun DFID_HELPER (TREE MAX_DEPTH)
     (cond
         ; when we get to end of level rest of TREE is NIL
