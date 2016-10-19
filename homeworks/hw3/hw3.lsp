@@ -172,10 +172,10 @@
 ; (no box is on a non-goal square)
 (defun goal-test (s)
   (cond
-    ; box on non-goal square
-    ((= s 2) NIL)
     ; s is a list, goal if first is goal and rest is goal
     ((listp s) (AND (goal-test (first s)) (goal-test (rest s))))
+    ; box on non-goal square
+    ((isBox s) NIL)
     ; s is not a list or not a lone box, thus goal as far as we know
     (T T)
   );end cond
@@ -202,21 +202,106 @@
 ; EXERCISE: returns int content of element at r c
 ; if outside contents of problem returns wall val
 (defun get-square (s r c)
-
+    (cond 
+        ; if we still have rows to traverse
+        ((> r 0) (get-square (rest s) (- r 1) c))
+        ; we have the row we want now TODO this -1 might be dangerous
+        ((= r 0) (get-square (first s) (-1) c))
+        ; if we still have cols to traverse
+        ((> c 0) (get-square (rest s) (-1) (- c 1)))
+        ; done traversing rows and cols, return the value
+        ((= c 0) (first s))
+    );end cond
 );end defun
 
 ; EXERCISE: returns new state that is obtained by setting (r, c) -> v
 ; does not modify input state
 (defun set-square (s r c v)
-    
+    ; if we still have rows to traverse
+    ((> r 0) (cons (first s) (set-square (rest s) (- r 1) c)))
+    ; we have the row we want now -1 to signify done traversing rows
+    ((= r 0) (cons (set-square (first s) -1 c) (rest s)))
+    ; if we still have cols to traverse
+    ((> c 0) (cons (first s) (set-square (rest s) -1 (- c 1))))
+    ; done traversing rows and cols, return the value
+    ((= c 0) v)
 );end defun
 
 
 ; EXERCISE: returns state that results from moving in direction D
 ; returns NIL if the move is invalid
 ; checking must happen here
+;   N -> 1
+;   S -> 2
+;   E -> 3
+;   W -> 4
 (defun try-move (s d)
-    
+    (let* ((pos (getKeeperPosition s 0))
+           ; position where keeper will go
+           (nextPos 
+                (cond
+                    ; assuming top left was 0, 0
+                    ; TODO do out of bounds checking for all this
+                    ; north
+                    ((= d 1) (cons (- (first pos) 1) (second pos)))
+                    ; south
+                    ((= d 2) (cons (+ (first pos) 1) (second pos)))
+                    ; east
+                    ((= d 3) (cons (first pos) (+ (second pos) 1)))
+                    ; west
+                    ((= d 4) (cons (first pos) (- (second pos) 1)))
+                ); end cond
+           )
+           ; position of block if pushed
+           (nextNextPos
+                (cond
+                    ; north
+                    ((= d 1) (cons (- (first pos) 2) (second pos)))
+                    ; south
+                    ((= d 2) (cons (+ (first pos) 2) (second pos)))
+                    ; east
+                    ((= d 3) (cons (first pos) (+ (second pos) 2)))
+                    ; west
+                    ((= d 4) (cons (first pos) (- (second pos) 2)))
+                ); end cond
+           )
+           
+           ; values of the squares in calculated positions
+           (nextVal (get-square s (first nextPos) (second nextPos)))
+           (nextNextVal (get-square s (first nextNextPos) (second nextNextPos)))
+          )
+        
+        ; check what type of square is in the direction we are looking
+        (cond
+            ; if its a blank we set-square to keeper
+            ((isBlank nextVal) (set-square s (first nextPos) (second nextPos) keeper))
+            ; if its a wall we return NIL
+            ((isWall nextVal) NIL)
+            ; if its a goal we set-square to keeper+goal
+            ((isStar nextVal) (set-square s (first nextPos) (second nextPos) keeperstar))
+            ; if its a box we must check one past the square to see if box has place to go
+            ((isBox nextVal) 
+                (cond
+                    ; if its blank we move both keeper + box
+                    ((isBlank nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) box))
+                    ; if its a goal we move both accordingly
+                    ((isStar nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) boxStar))
+                    ; anything else we cannot move since box constrains us
+                    (T NIL)
+                ); end cond
+            )
+            ((isBoxStar nextVal)
+                (cond
+                    ; if its blank we move both keeper + box
+                    ((isBlank nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box))
+                    ; if its a goal we move both accordingly
+                    ((isStar nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) boxStar))
+                    ; anything else we cannot move since box constrains us
+                    (T NIL)
+                ); end cond
+            )
+        ); end cond
+    ); end let*
 );
 
 (defun next-states (s)
