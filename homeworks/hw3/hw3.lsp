@@ -170,14 +170,16 @@
 ; EXERCISE: Modify this function to return true (t)
 ; if and only if s is a goal state of a Sokoban game.
 ; (no box is on a non-goal square)
-;
-; Currently, it always returns NIL. If A* is called with
-; this function as the goal testing function, A* will never
-; terminate until the whole search space is exhausted.
-;
 (defun goal-test (s)
-  nil
-  );end defun
+  (cond
+    ; box on non-goal square
+    ((= s 2) NIL)
+    ; s is a list, goal if first is goal and rest is goal
+    ((listp s) (AND (goal-test (first s)) (goal-test (rest s))))
+    ; s is not a list or not a lone box, thus goal as far as we know
+    (T T)
+  );end cond
+);end defun
 
 ; EXERCISE: Modify this function to return the list of
 ; sucessor states of s.
@@ -196,7 +198,27 @@
 ; 
 ; You will need to define the function try-move and decide how to represent UP,DOWN,LEFT,RIGHT.
 ; Any NIL result returned from try-move can be removed by cleanUpList.
-;
+
+; EXERCISE: returns int content of element at r c
+; if outside contents of problem returns wall val
+(defun get-square (s r c)
+
+);end defun
+
+; EXERCISE: returns new state that is obtained by setting (r, c) -> v
+; does not modify input state
+(defun set-square (s r c v)
+    
+);end defun
+
+
+; EXERCISE: returns state that results from moving in direction D
+; returns NIL if the move is invalid
+; checking must happen here
+(defun try-move (s d)
+    
+);
+
 (defun next-states (s)
   (let* ((pos (getKeeperPosition s 0))
 	 (x (car pos))
@@ -211,14 +233,21 @@
 ; EXERCISE: Modify this function to compute the trivial
 ; admissible heuristic.
 ;
-(defun h0 (s)
-  )
+(defun h0 (s) 0)
 
 ; EXERCISE: Modify this function to compute the
 ; number of misplaced boxes in s.
 ;
 (defun h1 (s)
-  )
+    (cond
+        ; s is a list, we must map recursive call and reduce results with + 
+        ((listp s) (+ (h1 (first s)) (h1 (rest s))))
+        ; found misplaced box, return 1
+        ((= s 2) 1)
+        ; not a misplaced box, return 0
+        (T 0)
+    ); end cond
+); end defun
 
 ; EXERCISE: Change the name of this function to h<UID> where
 ; <UID> is your actual student ID number. Then, modify this
@@ -228,9 +257,11 @@
 ; Objective: make A* solve problems as fast as possible.
 ; The Lisp 'time' function can be used to measure the
 ; running time of a function call.
-;
-(defun hUID (s)
-  )
+
+; IDEA: Minimum spanning tree
+(defun h704269982 (s)
+
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
