@@ -148,7 +148,7 @@
 	);end cond
   );end defun
 
-;
+
 ; cleanUpList (l)
 ; returns l with any NIL element removed.
 ; For example, if l is '(1 2 NIL 3 NIL), returns '(1 2 3).
@@ -199,32 +199,35 @@
 ; You will need to define the function try-move and decide how to represent UP,DOWN,LEFT,RIGHT.
 ; Any NIL result returned from try-move can be removed by cleanUpList.
 
-; EXERCISE: returns int content of element at r c
-; if outside contents of problem returns wall val
+; returns int content of element at r c
+; if outside contents of problem returns NIL
 (defun get-square (s r c)
     (cond 
         ; if we still have rows to traverse
         ((> r 0) (get-square (rest s) (- r 1) c))
         ; we have the row we want now TODO this -1 might be dangerous
-        ((= r 0) (get-square (first s) (-1) c))
+        ((= r 0) (get-square (first s) (- 1) c))
         ; if we still have cols to traverse
-        ((> c 0) (get-square (rest s) (-1) (- c 1)))
+        ((> c 0) (get-square (rest s) (- 1) (- c 1)))
         ; done traversing rows and cols, return the value
         ((= c 0) (first s))
     );end cond
 );end defun
 
-; EXERCISE: returns new state that is obtained by setting (r, c) -> v
+; returns new state that is obtained by setting (r, c) -> v
 ; does not modify input state
+; assumes it will never receive out of bounds row or column
 (defun set-square (s r c v)
-    ; if we still have rows to traverse
-    ((> r 0) (cons (first s) (set-square (rest s) (- r 1) c)))
-    ; we have the row we want now -1 to signify done traversing rows
-    ((= r 0) (cons (set-square (first s) -1 c) (rest s)))
-    ; if we still have cols to traverse
-    ((> c 0) (cons (first s) (set-square (rest s) -1 (- c 1))))
-    ; done traversing rows and cols, return the value
-    ((= c 0) v)
+    (cond
+        ; if we still have rows to traverse
+        ((> r 0) (cons (first s) (set-square (rest s) (- r 1) c v)))
+        ; we have the row we want now -1 signify done traversing rows
+        ((= r 0) (cons (set-square (first s) (- 1) c v) (rest s)))
+        ; if we still have cols to traverse
+        ((> c 0) (cons (first s) (set-square (rest s) (- 1) (- c 1) v)))
+        ; done traversing rows and cols, return the value
+        ((= c 0) (cons v (rest s)))
+    )
 );end defun
 
 
@@ -243,49 +246,87 @@
                     ; assuming top left was 0, 0
                     ; TODO do out of bounds checking for all this
                     ; north
-                    ((= d 1) (cons (- (first pos) 1) (second pos)))
+                    ((= d 1) (list (- (first pos) 1) (second pos)))
                     ; south
-                    ((= d 2) (cons (+ (first pos) 1) (second pos)))
+                    ((= d 2) (list (+ (first pos) 1) (second pos)))
                     ; east
-                    ((= d 3) (cons (first pos) (+ (second pos) 1)))
+                    ((= d 3) (list (first pos) (+ (second pos) 1)))
                     ; west
-                    ((= d 4) (cons (first pos) (- (second pos) 1)))
+                    ((= d 4) (list (first pos) (- (second pos) 1)))
                 ); end cond
            )
            ; position of block if pushed
            (nextNextPos
                 (cond
                     ; north
-                    ((= d 1) (cons (- (first pos) 2) (second pos)))
+                    ((= d 1) (list (- (first pos) 2) (second pos)))
                     ; south
-                    ((= d 2) (cons (+ (first pos) 2) (second pos)))
+                    ((= d 2) (list (+ (first pos) 2) (second pos)))
                     ; east
-                    ((= d 3) (cons (first pos) (+ (second pos) 2)))
+                    ((= d 3) (list (first pos) (+ (second pos) 2)))
                     ; west
-                    ((= d 4) (cons (first pos) (- (second pos) 2)))
+                    ((= d 4) (list (first pos) (- (second pos) 2)))
                 ); end cond
            )
            
            ; values of the squares in calculated positions
+           (val (get-square s (first pos) (second pos)))
            (nextVal (get-square s (first nextPos) (second nextPos)))
            (nextNextVal (get-square s (first nextNextPos) (second nextNextPos)))
-          )
+           
+           ; these bools help us from trying moves that are known to be invalid at this point
+           (isNextPosValid (and (>= (first nextPos) 0) (< (first nextPos) (length s)) (>= (second nextPos) 0) (< (second nextPos) (length (first s))))) 
+           (isNextNextPosValid (and (>= (first nextNextPos) 0) (< (first nextNextPos) (length s)) (>= (second nextNextPos) 0) (< (second nextNextPos) (length (first s)))))
+        ); end binding list
         
         ; check what type of square is in the direction we are looking
         (cond
+            ; if position we attempt to travel is out of bounds return NIL
+            ((not isNextPosValid) NIL)
             ; if its a blank we set-square to keeper
-            ((isBlank nextVal) (set-square s (first nextPos) (second nextPos) keeper))
+            ((isBlank nextVal) 
+                (cond
+                    ; keeper is just a keeper 
+                    ((isKeeper val) (set-square (set-square s (first nextPos) (second nextPos) keeper) (first pos) (second pos) blank))
+                    ; keeper is a keeperstar
+                    (T (set-square (set-square s (first nextPos) (second nextPos) keeper) (first pos) (second pos) star))
+                ); end cond
+            )
             ; if its a wall we return NIL
             ((isWall nextVal) NIL)
             ; if its a goal we set-square to keeper+goal
-            ((isStar nextVal) (set-square s (first nextPos) (second nextPos) keeperstar))
+            ((isStar nextVal) 
+                (cond
+                    ; keeper is just a keeper 
+                    ((isKeeper val) (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first pos) (second pos) blank))
+                    ; keeper is a keeperstar
+                    (T (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first pos) (second pos) star))
+                )
+            )
             ; if its a box we must check one past the square to see if box has place to go
             ((isBox nextVal) 
                 (cond
+                    ; if position where we want to put the box is invalid return NIL
+                    ((not isNextNextPosValid) NIL)
                     ; if its blank we move both keeper + box
-                    ((isBlank nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) box))
+                    ((isBlank nextNextVal) 
+                        (cond
+                            ; coming from keeper
+                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) box)) (first pos) (second pos) blank)
+                            ; keeper star
+                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) box)) (first pos) (second pos) star)
+                        ); end cond
+                    )
                     ; if its a goal we move both accordingly
-                    ((isStar nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) boxStar))
+                    ((isStar nextNextVal) 
+                        (cond
+                            ; coming from keeper
+                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) blank))
+
+                            ; coming from keeperstar
+                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) star))
+                        ); end cond
+                    )
                     ; anything else we cannot move since box constrains us
                     (T NIL)
                 ); end cond
@@ -293,9 +334,23 @@
             ((isBoxStar nextVal)
                 (cond
                     ; if its blank we move both keeper + box
-                    ((isBlank nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box))
+                    ((isBlank nextNextVal) 
+                        (cond
+                            ; coming from star
+                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box) (first pos) (second pos) blank))
+                            ; coming from keeper star
+                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box) (first pos) (second pos) star))
+                        ); end cond
+                    )
                     ; if its a goal we move both accordingly
-                    ((isStar nextNextVal) (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) boxStar))
+                    ((isStar nextNextVal) 
+                        (cond
+                            ; coming from star
+                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) blank))
+                            ; coming from keeperstar
+                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) star))
+                        ); end cond
+                    )
                     ; anything else we cannot move since box constrains us
                     (T NIL)
                 ); end cond
@@ -309,7 +364,7 @@
 	 (x (car pos))
 	 (y (cadr pos))
 	 ;x and y are now the coordinate of the keeper in s.
-	 (result nil)
+	 (result (list (try-move s 1) (try-move s 2) (try-move s 3) (try-move s 4)))
 	 )
     (cleanUpList result);end
    );end let
