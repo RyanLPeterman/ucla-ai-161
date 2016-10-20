@@ -172,12 +172,10 @@
 ; (no box is on a non-goal square)
 (defun goal-test (s)
   (cond
-    ; s is a list, goal if first is goal and rest is goal
-    ((listp s) (AND (goal-test (first s)) (goal-test (rest s))))
-    ; box on non-goal square
-    ((isBox s) NIL)
-    ; s is not a list or not a lone box, thus goal as far as we know
-    (T T)
+    ; base case row does not contain a block
+    ((null s) T)
+    ; if block not found in current row or rest of rows, goal-state
+    ((listp s) (and (= (count box (first s)) 0) (goal-test (rest s))))
   );end cond
 );end defun
 
@@ -240,43 +238,54 @@
 ;   W -> 4
 (defun try-move (s d)
     (let* ((pos (getKeeperPosition s 0))
+           (row (second pos))
+           (col (first pos))
            ; position where keeper will go
            (nextPos 
                 (cond
                     ; assuming top left was 0, 0
-                    ; TODO do out of bounds checking for all this
                     ; north
-                    ((= d 1) (list (- (first pos) 1) (second pos)))
+                    ((= d 1) (list (- row 1) col))
                     ; south
-                    ((= d 2) (list (+ (first pos) 1) (second pos)))
+                    ((= d 2) (list (+ row 1) col))
                     ; east
-                    ((= d 3) (list (first pos) (+ (second pos) 1)))
+                    ((= d 3) (list row (+ col 1)))
                     ; west
-                    ((= d 4) (list (first pos) (- (second pos) 1)))
+                    ((= d 4) (list row (- col 1)))
                 ); end cond
            )
            ; position of block if pushed
            (nextNextPos
                 (cond
                     ; north
-                    ((= d 1) (list (- (first pos) 2) (second pos)))
+                    ((= d 1) (list (- row 2) col))
                     ; south
-                    ((= d 2) (list (+ (first pos) 2) (second pos)))
+                    ((= d 2) (list (+ row 2) col))
                     ; east
-                    ((= d 3) (list (first pos) (+ (second pos) 2)))
+                    ((= d 3) (list row (+ col 2)))
                     ; west
-                    ((= d 4) (list (first pos) (- (second pos) 2)))
+                    ((= d 4) (list row (- col 2)))
                 ); end cond
            )
            
            ; values of the squares in calculated positions
-           (val (get-square s (first pos) (second pos)))
+           (val (get-square s row col))
            (nextVal (get-square s (first nextPos) (second nextPos)))
            (nextNextVal (get-square s (first nextNextPos) (second nextNextPos)))
            
            ; these bools help us from trying moves that are known to be invalid at this point
            (isNextPosValid (and (>= (first nextPos) 0) (< (first nextPos) (length s)) (>= (second nextPos) 0) (< (second nextPos) (length (first s))))) 
            (isNextNextPosValid (and (>= (first nextNextPos) 0) (< (first nextNextPos) (length s)) (>= (second nextNextPos) 0) (< (second nextNextPos) (length (first s)))))
+        
+           ; next state with keeper moved if found valid move
+           (keeperMovedState 
+                (cond
+                    ; if keeper spot was just a keeper set it to blank
+                    ((isKeeper val) (set-square s row col blank))
+                    ; if keeper spot was a keeper star, set it to a star
+                    (T (set-square s row col star))
+                ); end cond
+           )
         ); end binding list
         
         ; check what type of square is in the direction we are looking
@@ -284,49 +293,20 @@
             ; if position we attempt to travel is out of bounds return NIL
             ((not isNextPosValid) NIL)
             ; if its a blank we set-square to keeper
-            ((isBlank nextVal) 
-                (cond
-                    ; keeper is just a keeper 
-                    ((isKeeper val) (set-square (set-square s (first nextPos) (second nextPos) keeper) (first pos) (second pos) blank))
-                    ; keeper is a keeperstar
-                    (T (set-square (set-square s (first nextPos) (second nextPos) keeper) (first pos) (second pos) star))
-                ); end cond
-            )
+            ((isBlank nextVal) (set-square keeperMovedState (first nextPos) (second nextPos) keeper))
             ; if its a wall we return NIL
             ((isWall nextVal) NIL)
             ; if its a goal we set-square to keeper+goal
-            ((isStar nextVal) 
-                (cond
-                    ; keeper is just a keeper 
-                    ((isKeeper val) (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first pos) (second pos) blank))
-                    ; keeper is a keeperstar
-                    (T (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first pos) (second pos) star))
-                )
-            )
+            ((isStar nextVal) (set-square keeperMovedState (first nextPos) (second nextPos) keeperstar))
             ; if its a box we must check one past the square to see if box has place to go
             ((isBox nextVal) 
                 (cond
                     ; if position where we want to put the box is invalid return NIL
                     ((not isNextNextPosValid) NIL)
                     ; if its blank we move both keeper + box
-                    ((isBlank nextNextVal) 
-                        (cond
-                            ; coming from keeper
-                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) box)) (first pos) (second pos) blank)
-                            ; keeper star
-                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) box)) (first pos) (second pos) star)
-                        ); end cond
-                    )
+                    ((isBlank nextNextVal) (set-square (set-square keeperMovedState (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) box))
                     ; if its a goal we move both accordingly
-                    ((isStar nextNextVal) 
-                        (cond
-                            ; coming from keeper
-                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) blank))
-
-                            ; coming from keeperstar
-                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) star))
-                        ); end cond
-                    )
+                    ((isStar nextNextVal) (set-square (set-square keeperMovedState (first nextPos) (second nextPos) keeper) (first nextNextPos) (second nextNextPos) boxStar))
                     ; anything else we cannot move since box constrains us
                     (T NIL)
                 ); end cond
@@ -334,23 +314,9 @@
             ((isBoxStar nextVal)
                 (cond
                     ; if its blank we move both keeper + box
-                    ((isBlank nextNextVal) 
-                        (cond
-                            ; coming from star
-                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box) (first pos) (second pos) blank))
-                            ; coming from keeper star
-                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box) (first pos) (second pos) star))
-                        ); end cond
-                    )
+                    ((isBlank nextNextVal) (set-square (set-square keeperMovedState (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box))
                     ; if its a goal we move both accordingly
-                    ((isStar nextNextVal) 
-                        (cond
-                            ; coming from star
-                            ((isKeeper val) (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) blank))
-                            ; coming from keeperstar
-                            (T (set-square (set-square (set-square s (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) boxStar) (first pos) (second pos) star))
-                        ); end cond
-                    )
+                    ((isStar nextNextVal) (set-square (set-square keeperMovedState (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) boxStar))
                     ; anything else we cannot move since box constrains us
                     (T NIL)
                 ); end cond
