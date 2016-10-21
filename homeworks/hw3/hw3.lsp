@@ -313,6 +313,8 @@
             )
             ((isBoxStar nextVal)
                 (cond
+                    ; if position where we want to put the box is invalid return NIL
+                    ((not isNextNextPosValid) NIL)
                     ; if its blank we move both keeper + box
                     ((isBlank nextNextVal) (set-square (set-square keeperMovedState (first nextPos) (second nextPos) keeperstar) (first nextNextPos) (second nextNextPos) box))
                     ; if its a goal we move both accordingly
@@ -346,12 +348,10 @@
 ;
 (defun h1 (s)
     (cond
-        ; s is a list, we must map recursive call and reduce results with + 
-        ((listp s) (+ (h1 (first s)) (h1 (rest s))))
-        ; found misplaced box, return 1
-        ((= s 2) 1)
-        ; not a misplaced box, return 0
-        (T 0)
+        ; base case row does not contain a block
+        ((null s) 0)
+        ; add up count of blocks found in all rows 
+        ((listp s) (+ (count box (first s)) (h1 (rest s))))
     ); end cond
 ); end defun
 
@@ -364,9 +364,99 @@
 ; The Lisp 'time' function can be used to measure the
 ; running time of a function call.
 
-; IDEA: Minimum spanning tree
-(defun h704269982 (s)
+; returns absolute value of v (spec didn't say we could use builtin)
+(defun my_abs (v)
+    (cond 
+        ; if negative then negate
+        ((< v 0) (- v))
+        (T v)
+    ); end cond
+)
 
+; given two numbers, returns the value of v
+(defun my_min (n1 n2)
+    (cond
+        ; if only one is nil return non nil
+        ((and (null n1) (not (null n2))) n2)
+        ((and (null n2) (not (null n1))) n1)
+        ; if both nil
+        ((or (null n1) (null n2)) NIL)
+        ; if n1 < n2 return n1
+        ((< n1 n2) n1)
+        (T n2)
+    );end cond
+)
+
+; returns manhattan distance between two points
+(defun manhattan (p1 p2)
+    (cond 
+        ; if either point is NIL 
+        ((or (null p1) (null p2)) NIL)
+        ; calc manhattan
+        (T (let* ((x_dist (my_abs (- (first p1) (first p2))))
+               (y_dist (my_abs (- (second p1) (second p2))))); end binding list
+              (+ x_dist y_dist)
+            ); end let
+        )
+    ); end cond
+)
+
+; keeps track of indexes in s
+(defun get_val_helper (r c s v)
+    (cond
+        ; if s is nil return nil
+        ((null s) NIL)
+        ; if s is a number and a box, return its coords
+        ((and (numberp s) (= s v)) (list(list r c)))
+        ; s is a list of lists (we are traversing rows
+        ((and (listp s) (listp (first s))) (append (get_val_helper r c (first s) v) (get_val_helper (+ r 1) c (rest s) v)))
+        ; s is a list of numbers (we are traversing cols
+        ((and (listp s) (numberp (first s))) (append (get_val_helper r c (first s) v) (get_val_helper r (+ c 1) (rest s) v)))
+        ; is is a number and not a box
+        (T NIL)
+    ); end cond
+)
+
+; returns coordinates of all boxes in state
+(defun get_boxes (s)
+    (get_val_helper 0 0 s box)
+)
+
+; returns coordinates of all goals in state
+(defun get_goals (s)
+    (get_val_helper 0 0 s star)
+)
+
+; given a point and a list of other points
+; returns min_dist between point and all other points
+(defun min_dist (p l)
+    (cond
+        ; return a huge distance = inf
+        ((null l) NIL)
+        (T (my_min (manhattan p (first l)) (min_dist p (rest l))))
+    ) ; end cond
+)
+; given two lists of points, gets the min_dist between first point in l1
+; and all of l2 and repeats for all values in l1 and sums them
+(defun min_dist_helper (l1 l2)
+    (cond
+        ((null l1) 0)
+        ; no points to calc distance between
+        ((null l2) 0)
+        ; calcs min dist for current point and adds recursive sum to it
+        (T (+ (min_dist (first l1) l2) (min_dist_helper (rest l1) l2)))
+    );end cond
+)
+
+(defun h704269982 (s)
+    (let*((boxes (get_boxes s))
+          (goals (get_goals s))
+          (pos (getKeeperPosition s 0))
+         ); end binding list
+        ; add # misplaced boxes + min distnace to a box
+        ;(+ (h1 s) (min_dist pos boxes)) 
+        (min_dist_helper boxes goals)
+    ); end let
 )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
