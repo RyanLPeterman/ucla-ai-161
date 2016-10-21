@@ -167,7 +167,7 @@
 	);end cond
   );end
 
-; EXERCISE: Modify this function to return true (t)
+; Modify this function to return true (t)
 ; if and only if s is a goal state of a Sokoban game.
 ; (no box is on a non-goal square)
 (defun goal-test (s)
@@ -179,7 +179,7 @@
   );end cond
 );end defun
 
-; EXERCISE: Modify this function to return the list of
+; Modify this function to return the list of
 ; sucessor states of s.
 ;
 ; This is the top-level next-states (successor) function.
@@ -229,7 +229,7 @@
 );end defun
 
 
-; EXERCISE: returns state that results from moving in direction D
+; returns state that results from moving in direction D
 ; returns NIL if the move is invalid
 ; checking must happen here
 ;   N -> 1
@@ -338,12 +338,12 @@
    );end let
   );
 
-; EXERCISE: Modify this function to compute the trivial
+; Modify this function to compute the trivial
 ; admissible heuristic.
 ;
 (defun h0 (s) 0)
 
-; EXERCISE: Modify this function to compute the
+; Modify this function to compute the
 ; number of misplaced boxes in s.
 ;
 (defun h1 (s)
@@ -355,7 +355,7 @@
     ); end cond
 ); end defun
 
-; EXERCISE: Change the name of this function to h<UID> where
+; Change the name of this function to h<UID> where
 ; <UID> is your actual student ID number. Then, modify this
 ; function to compute an admissible heuristic value of s.
 ;
@@ -373,7 +373,7 @@
     ); end cond
 )
 
-; given two numbers, returns the value of v
+; given two numbers, returns the smaller
 (defun my_min (n1 n2)
     (cond
         ; if only one is nil return non nil
@@ -384,6 +384,20 @@
         ; if n1 < n2 return n1
         ((< n1 n2) n1)
         (T n2)
+    );end cond
+)
+
+; given two numbers, returns the larger
+(defun my_max (n1 n2)
+    (cond
+        ; if only one is nil return non nil
+        ((and (null n1) (not (null n2))) n2)
+        ((and (null n2) (not (null n1))) n1)
+        ; if both nil
+        ((or (null n1) (null n2)) NIL)
+        ; if n1 < n2 return n2
+        ((< n1 n2) n2)
+        (T n1)
     );end cond
 )
 
@@ -436,6 +450,14 @@
         (T (my_min (manhattan p (first l)) (min_dist p (rest l))))
     ) ; end cond
 )
+
+(defun max_dist (p l)
+    (cond
+        ; return a huge distance = inf
+        ((null l) NIL)
+        (T (my_max (manhattan p (first l)) (max_dist p (rest l))))
+    ) ; end cond
+)
 ; given two lists of points, gets the min_dist between first point in l1
 ; and all of l2 and repeats for all values in l1 and sums them
 (defun min_dist_helper (l1 l2)
@@ -448,16 +470,31 @@
     );end cond
 )
 
+; all the other heuristic ideas costed more time to compute than
+; the time saved from expanding less nodes, ended up going with h1
 (defun h704269982 (s)
-    (let*((boxes (get_boxes s))
-          (goals (get_goals s))
-          (pos (getKeeperPosition s 0))
-         ); end binding list
-        ; add # misplaced boxes + min distnace to a box
-        ;(+ (h1 s) (min_dist pos boxes)) 
-        (min_dist_helper boxes goals)
-    ); end let
+    (h1 s)  
 )
+  ;(let*(;(boxes (get_boxes s))
+          ;(goals (get_goals s))
+          ;(pos (getKeeperPosition s 0))
+          
+          ; SLOWER dist to nearest box
+          ;(dist_to_box (max_dist pos boxes))
+          
+          ; SLOWER dist between boxes and goals
+          ;(tot_min_dist (min_dist_helper boxes goals))
+     ;   ); end binding list
+        
+
+        ;(cond
+            ; in case there were no boxes
+        ;    ((null dist_to_box) 0)
+            ; return smallest dist to box
+        ;    (T (+ dist_to_box tot_min_dist))
+        ;); end cond
+    ;); end let
+;)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
