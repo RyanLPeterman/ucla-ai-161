@@ -1,6 +1,7 @@
 ;
 ; CS161 HW3: Sokoban
-;
+; Name: Ryan Peterman
+; UID: 704269982
 ; *********************
 ;    READ THIS FIRST
 ; *********************
