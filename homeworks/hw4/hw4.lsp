@@ -11,6 +11,27 @@
     (sat_helper n '() delta)
 )
 
+(defun dpll (cnf remaining assign)
+    (cond
+        ; if cnf is full of empty clauses/is empty return assign + remaining
+
+        ; get all unit clauses
+        ; set and remove all clauses containing units
+        ; if conflicting unit clauses terminate prematurely
+
+        ; do pure literal check here too
+
+        ; assign first variable in cnf
+            ; add clause to cnf as unit
+            ; dpll (cleaned + added cnf) (new assignment) (new remaining)
+
+        ; assign negation of first variable in cnf if first assign did not work
+
+
+    
+    ); end cond
+)
+
 ; generates assignments
 ; checks cnf once partial assignment is full
 ; returns NIL if no possible assignment otherwise returns assignment
@@ -49,29 +70,8 @@
                 ) ; end cond
             ) ; end let
         )
-        
-        ; this is the idea with the above construct but returning what
-        ; we want in the condition is tedious
-        ; if we bind locals with let then we compute before necessary
-        ;   enless we do one let at a time
-        ; if we dont use let we repeat computation
-        ; ; assign next variable as true and see if it returns assignment list
-        ; ((listp (sat_helper (- n 1) (cons 1 partial))) return it) 
-        ; ; assign next variable as false and see if it returns assignment list
-        ; ((listp (sat_helper (- n 1) (cons (- 1) partial))) return it)
-        ; ; returns NIL if no assignment worked
-        ; (T NIL)
-    )
+    ); end cond
 )
-
-; given a cnf determines returns new cnf with units removed
-; TODO: we need to support partial assignments that are not
-; sorted from the beginning
-; iterates over clauses and checks their length
-; if their lenght is one then wlil assign if not already assigned
-; if already assigned then checks if it matches unit clause
-; cleans up cnf and removes things that can be removed
-; returns the new cnf and assignments added in
 
 ; returns true if a conflicting unit clause appears in cnf
 (defun is_conflicting_unit (cnf)
@@ -167,13 +167,6 @@
 ;   - CNF is a conjunction (AND) of clauses
 ;   - a clause is a disjunction of literals
 ;   - a literal is a variable or the negation of it
-;
-; Idea:
-;   - use DFS
-;   - try all possibilities for variable 1 
-;   - i.e. X, -X partial assignments then XY, X-Y, -XY, -X-Y partial assignments
-;   - two functions one for conjunctions and one for disjunctions
-;   - if disjunction evaluated to false, then whole thing is false so stop
 
 ; utility function for easier loading
 (defun reload ()
