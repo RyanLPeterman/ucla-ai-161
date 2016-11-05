@@ -1,0 +1,36 @@
+Name: Ryan Peterman
+UID: 704269982
+
+CS 161 - Homework 6
+
+1. For each pair of atomic sentences, give the most general unifier if it exists:
+    a) P(A, B, B), P(x, y, z).
+        - no unifier exists since y and z cannot both be bound to B
+    b) Q(y, G(A, B)), Q(G(X, x), y).
+        - 
+    c) R(x, A, z), R(B, y, z)
+        - B = x, A = y
+    d) Older(Father(y), y), Older(Father(x), John).
+        - John = x
+    e) Knows(Father(y), y), Knows(x, x).
+        - no unifier exists
+
+2. Consider the following:
+    - John likes all kinds of food
+    - Apples are food
+    - Chicken is food
+    - Anything anyone eats and isn't killed by is food
+    - If you are killed by something, you are not alive
+    - Bill eats peanuts and is still alive
+    - Sue eats everything Bill eats
+∃
+
+    a) 
+    - ∀ x, ∃ j : food(x) => likes(j, x) - for all x s.t. x is food, j likes x
+    - food(apple)
+    - food(chicken)
+    - ∀ x, y : eats(x, y) and not kills(x, y) => food(y)
+    - ∀ x, ∃ y : kills(x, y) => not alive(x)
+    - ∃ b, p : eats(b, p) and alive(b)
+    - ∃ s, b ∀ x : eats(b, x) => eats(s, x)
+    b) 
