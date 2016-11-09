@@ -5,13 +5,13 @@ CS 161 - Homework 6
 
 1. For each pair of atomic sentences, give the most general unifier if it exists:
     a) P(A, B, B), P(x, y, z).
-        - no unifier exists since y and z cannot both be bound to B
+        - no unifier exists since B cannot be bound to both y and z
     b) Q(y, G(A, B)), Q(G(X, x), y).
-        - 
+        - (G(X, x) = y, G(A, B) = y) => A = X, B = x
     c) R(x, A, z), R(B, y, z)
         - B = x, A = y
     d) Older(Father(y), y), Older(Father(x), John).
-        - John = x
+        - John = y
     e) Knows(Father(y), y), Knows(x, x).
         - no unifier exists
 
@@ -26,11 +26,11 @@ CS 161 - Homework 6
 ∃
 
     a) 
-    - ∀ x, ∃ j : food(x) => likes(j, x) - for all x s.t. x is food, j likes x
+    - ∀ x : food(x) => likes(john, x)
     - food(apple)
     - food(chicken)
     - ∀ x, y : eats(x, y) and not kills(x, y) => food(y)
-    - ∀ x, ∃ y : kills(x, y) => not alive(x)
-    - ∃ b, p : eats(b, p) and alive(b)
-    - ∃ s, b ∀ x : eats(b, x) => eats(s, x)
+    - ∀ x, E y : kills(x, y) => not alive(x)
+    - eats(bill, peanuts) and alive(bill)
+    - ∀ x : eats(bill, x) => eats(sue, x)
     b) 
