@@ -5,15 +5,15 @@ CS 161 - Homework 6
 
 1. For each pair of atomic sentences, give the most general unifier if it exists:
     a) P(A, B, B), P(x, y, z).
-        - no unifier exists since B cannot be bound to both y and z
+        x = A, y = B, z = y
     b) Q(y, G(A, B)), Q(G(X, x), y).
-        - (G(X, x) = y, G(A, B) = y) => A = X, B = x
+        none, y = G(X, x), y = G(A, B) => A != X no unifier exists
     c) R(x, A, z), R(B, y, z)
-        - B = x, A = y
+        - x = B, y = A
     d) Older(Father(y), y), Older(Father(x), John).
-        - John = y
+        - x = y, y = John
     e) Knows(Father(y), y), Knows(x, x).
-        - no unifier exists
+        - none, x = y, x = Father(y) => recursively cannot be ones own father no unifier exists
 
 2. Consider the following:
     - John likes all kinds of food
@@ -23,14 +23,48 @@ CS 161 - Homework 6
     - If you are killed by something, you are not alive
     - Bill eats peanuts and is still alive
     - Sue eats everything Bill eats
-∃
 
     a) 
-    - ∀ x : food(x) => likes(john, x)
-    - food(apple)
-    - food(chicken)
-    - ∀ x, y : eats(x, y) and not kills(x, y) => food(y)
-    - ∀ x, E y : kills(x, y) => not alive(x)
-    - eats(bill, peanuts) and alive(bill)
-    - ∀ x : eats(bill, x) => eats(sue, x)
-    b) 
+        1. ∀ x : food(x) => likes(john, x)
+        2. food(apple)
+        3. food(chicken)
+        4. ∀ x, y : eats(x, y) and not kills(x, y) => food(y)
+        5. ∀ x, y : kills(x, y) => not alive(x)
+        6. eats(bill, peanuts) and alive(bill)
+        7. ∀ x : eats(bill, x) => eats(sue, x)
+    b)
+        1. not food(x1) or likes(john, x1)
+        2. food(apple)
+        3. food(chicken)
+        4. not eats(x2, y2) or kills(x2, y2) or food(y2)
+        5. not kills(x3, y3) or not alive(y3)
+        6. eats(bill, peanuts)
+        7. alive(bill)
+        8. not eats(bill, x4) or eats(sue, x4)
+
+    c) Prove: likes(john, peanuts)
+
+        1. not food(x1) or likes(john, x1)
+        2. food(apple)
+        3. food(chicken)
+        4. not eats(x2, y2) or kills(x2, y2) or food(y2)
+        5. not kills(x3, F(x3)) or not alive(x3)
+        6. eats(bill, peanuts) 
+        7. alive(bill)
+        8. not eats(bill, x4) or eats(sue, x4)
+        --------------------------
+        9. kills(bill, peanuts) or food(peanuts) : from 4 + 6
+        10. kills(bill, peanuts) or likes(john, peanuts) : from 1 + 9
+        11. not kills(bill, F(bill)) : from 4 + 7
+        12. likes(john, peanuts) : from 10 + 11
+
+    d) "What food does Sue eat?"
+        9. eats(sue, peanuts) : from 6 + 8
+    e) 
+        - If you don't eat, you die
+            -> ∀ x, y : not eats(x, y) => die(y)
+        - If you die, you are not alive
+            -> ∀ x : die(x) => not alive(x)
+        - Bill is alive
+            -> alive(bill)
+
