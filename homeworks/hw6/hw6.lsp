@@ -11,41 +11,66 @@
   (load "hw6.lsp")
   );end defun
 
-; EXERCISE: Fill this function.
-; returns the index of the variable
-; that corresponds to the fact that 
-; "node n gets color c" (when there are k possible colors).
-;
+; mapping function to map nodes to variables in sat
 (defun node2var (n c k)
-  )
+    ; given formula
+    (+ (* (- n 1) k) c)
+)
 
-; EXERCISE: Fill this function
 ; returns *a clause* for the constraint:
 ; "node n gets at least one color from the set {c,c+1,...,k}."
-;
 (defun at-least-one-color (n c k)
-  )
+    (cond 
+        ; error check
+        ((< k c) NIL)
+        ; last color
+        ((= c k) (list (node2var n c k)))
+        ; cons current color result with later color results
+        (T (cons (node2var n c k) (at-least-one-color n (+ c 1) k)))
+    ); end cond
+)
 
-; EXERCISE: Fill this function
+(defun at-most-helper (n c k)
+    (cond
+        ; out of colors
+        ((= c k) NIL)
+        ; n not colored as c and k
+        (T (cons (list (- (node2var n c k)) (- (node2var n k k))) (at-most-helper n (+ c 1) k)))
+    ); end cond
+)
+
 ; returns *a list of clauses* for the constraint:
 ; "node n gets at most one color from the set {c,c+1,...,k}."
-;
 (defun at-most-one-color (n c k)
-  )
+    (cond
+        ; no colors
+        ((= c k) NIL)
+        ; recursively decrements amount of colors while adding clauses for k
+        (T (append (at-most-one-color n c (- k 1)) (at-most-helper n c k)))
+    ); end cond
+)
 
-; EXERCISE: Fill this function
-; returns *a list of clauses* to ensure that
-; "node n gets exactly one color from the set {1,2,...,k}."
-;
+; generates all node clauses
 (defun generate-node-clauses (n k)
-  )
+    ; at least one color AND at most one color = exactly one color
+    (cons (at-least-one-color n 1 k) (at-most-one-color n 1 k))
+)
 
-; EXERCISE: Fill this function
+; helper to keep track of c
+(defun edge-helper (e c k) 
+    (cond
+        ;; out of colors
+        ((> c k) NIL)
+        ; add constraining clauses to recursive call
+        (T (cons (list (- (node2var (first e) c k)) (- (node2var (second e) c k))) (edge-helper e (+ c 1) k)))
+    )
+)
+
 ; returns *a list of clauses* to ensure that
 ; "the nodes at both ends of edge e cannot have the same color from the set {1,2,...,k}."
-;
 (defun generate-edge-clauses (e k)
-  )
+    (edge-helper e 1 k)
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Your exercises end here. Below are top-level
