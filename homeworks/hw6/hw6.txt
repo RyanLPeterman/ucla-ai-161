@@ -5,9 +5,9 @@ CS 161 - Homework 6
 
 1. For each pair of atomic sentences, give the most general unifier if it exists:
     a) P(A, B, B), P(x, y, z).
-        x = A, y = B, z = y
+        - x = A, y = B, z = y
     b) Q(y, G(A, B)), Q(G(X, x), y).
-        none, y = G(X, x), y = G(A, B) => A != X no unifier exists
+        - none, y = G(X, x), y = G(A, B) => A != X no unifier exists
     c) R(x, A, z), R(B, y, z)
         - x = B, y = A
     d) Older(Father(y), y), Older(Father(x), John).
@@ -24,34 +24,34 @@ CS 161 - Homework 6
     - Bill eats peanuts and is still alive
     - Sue eats everything Bill eats
 
-    a) 
+    a) First Order Logic: 
         1. ∀ x : food(x) => likes(john, x)
-        2. food(apple)
-        3. food(chicken)
-        4. ∀ x, y : eats(x, y) and not kills(x, y) => food(y)
-        5. ∀ x, y : kills(x, y) => not alive(x)
-        6. eats(bill, peanuts) and alive(bill)
-        7. ∀ x : eats(bill, x) => eats(sue, x)
-    b)
-        1. not food(x1) or likes(john, x1)
-        2. food(apple)
-        3. food(chicken)
-        4. not eats(x2, y2) or kills(x2, y2) or food(y2)
-        5. not kills(x3, y3) or not alive(y3)
-        6. eats(bill, peanuts)
-        7. alive(bill)
-        8. not eats(bill, x4) or eats(sue, x4)
+        2. food(Apple)
+        3. food(Chicken)
+        4. ∀ x, y : eats(x, y) & ~kills(x, y) => food(y)
+        5. ∀ x, y : kills(x, y) => ~alive(x)
+        6. eats(Bill, Peanuts) & alive(Bill)
+        7. ∀ x : eats(Bill, x) => eats(Sue, x)
+
+    b) CNF Form:
+        1. ~food(x1) | likes(John, x1)
+        2. food(Apple)
+        3. food(Chicken)
+        4. ~eats(x2, y2) | kills(x2, y2) | food(y2)
+        5. ~kills(x3, y3) | ~alive(y3)
+        6. eats(Bill, Peanuts)
+        7. alive(Bill)
+        8. ~eats(bill, x4) | eats(sue, x4)
 
     c) Prove: likes(john, peanuts)
-
-        1. not food(x1) or likes(john, x1)
-        2. food(apple)
-        3. food(chicken)
-        4. not eats(x2, y2) or kills(x2, y2) or food(y2)
-        5. not kills(x3, F(x3)) or not alive(x3)
+        1. ~ food(x1) | likes(John, x1)
+        2. food(Apple)
+        3. food(Chicken)
+        4. ~ eats(x2, y2) | kills(x2, y2) | food(y2)
+        5. ~ kills(x3, F(x3)) | ~ alive(x3)
         6. eats(bill, peanuts) 
         7. alive(bill)
-        8. not eats(bill, x4) or eats(sue, x4)
+        8. ~ eats(bill, x4) | eats(sue, x4)
         --------------------------
         9. kills(bill, peanuts) or food(peanuts) : from 4 + 6
         10. kills(bill, peanuts) or likes(john, peanuts) : from 1 + 9
@@ -60,11 +60,37 @@ CS 161 - Homework 6
 
     d) "What food does Sue eat?"
         9. eats(sue, peanuts) : from 6 + 8
-    e) 
+    e)
         - If you don't eat, you die
-            -> ∀ x, y : not eats(x, y) => die(y)
+            -FOL> ∀ x, y : ~ eats(x, y) => die(y)
+            -CNF> eats(x, y) | die(y)
+        
         - If you die, you are not alive
-            -> ∀ x : die(x) => not alive(x)
+            -FOL> ∀ x : die(x) => not alive(x)
+            -CNF> ~ die(x) | ~ alive(x)   
         - Bill is alive
-            -> alive(bill)
+            -FOL, CNF> alive(Bill)
 
+            1. ~ food(x1) | likes(John, x1)
+            2. food(Apple)
+            3. food(Chicken)
+            4. ~ eats(x2, y2) | kills(x2, y2) | food(y2)
+            5. ~ kills(x3, F(x3)) | ~ alive(x3)
+            6. alive(Bill)
+            7. ~ eats(Bill, x4) | eats(Sue, x4)
+            8. eats(x6, y6) | die(y6)
+            9. ~ die(x6) | ~ alive(x6)
+            -----------------------------------
+            10. ~ kills(Bill, F(Bill)) : from 5 + 6
+            11. ~ eats(Bill, F(Bill)) | food(F(Bill)) : from 4 + 8
+            12. eats(Sue, F(Bill)) | food(F(Bill)) : from 9 + 7
+            
+            Thus, Sue eats Chicken and Apples (all food)
+
+3. Graph 1: sat >= 4, unsat < 4
+   Graph 2: sat >= 8, unsat < 8
+
+If the sat solver returns that the problem is satisfiable, then there
+exists a coloring of the graph that satisfies the constraints and
+we can obtain it from the variable assignments by decoding/inverting
+the node2var mapping.
