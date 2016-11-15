@@ -1,0 +1,109 @@
+Name: Ryan Peterman
+UID: 704269982
+
+Homework 7:
+
+1. Prove the following:
+
+    Generalized Product Rule: P(A,B|K) = P(A|B,K)P(B|K)
+        P(A,B,K) / P(K) = (P(A,B,K) / P(B,K)) * (P(B, K) / P(K)) - apply definition of Pr(A|B)
+        P(A,B,K) / P(K) = P(A,B,K) / P(K) - cancel denom and numerator to complete equality
+
+        Thus the product rule holds for A and B. Note in order to expand this to any i arbitrary
+        variables, we can use induction.
+
+    Generalized Bayes' Rule: P(A|B,K) = P(B|A,K)P(A|K)/P(B|K)
+        P(A,B,K) / P(B,K) = (P(A,B,K) / P(A,K))(P(A,K) / P(K)) / (P(B, K) / P(K)) - apply defn of Pr(A|B)
+                          = (P(A,B,K)/P(K)) / (P(B,K)/P(K)) - cancel P(A,K)
+                          = P(A,B,K) / P(B,K) - cancel P(K) to complete equality
+
+        Thus the generalized Bayes' rule holds.
+
+2. Calculate the change of oil being present given that the rest returns positive.
+
+    P(Oil) = 0.5
+    P(Natural) = 0.2
+    P(Neither) = 0.3
+    P(Test|Oil) = 0.9
+    P(Test|Natural) = 0.3
+    P(Test|Neither) = 0.1
+    
+    P(Oil|Test) = ?
+    
+    Bayes Rule:
+    P(Oil|Test) = P(Test|Oil)P(Oil) / P(Test)
+    P(Oil|Test) = 0.9*0.5 / P(Test) = 0.45 / 0.54  : P(test) from below
+    P(Oil|Test) = 0.833
+    
+    Since, the oil is either all oil, natural, or neither, this case analysis shows us 
+    only three cases. Thus the probability of the test returning positive can 
+    be written as the sum of the P(Test|...)*P(...) for each of the three.
+    
+    P(Test) = P(Test|Oil)*P(Oil) + P(Test|Natural)*P(Natural) + P(Test|Neither)*P(Neither) 
+    P(Test) = 0.9*0.5 + 0.3*0.2 + 0.1*0.3
+    P(Test) = 0.54
+    
+    Thus, given that the test shows positive, the chance of oil being present is 0.833.
+
+3.
+
+    3 Variables:
+        Black
+        Round
+        One
+    
+    W# | Black | Round | One | Pr   | Pr(.|One v Black)
+    --------------------------------------------------
+    1  | T     | T     | T   | 1/13 | 
+    2  | T     | T     | F   | 2/13 |
+    3  | T     | F     | T   | 2/13 |
+    4  | T     | F     | F   | 4/13 | 
+    5  | F     | T     | T   | 1/13 |
+    6  | F     | T     | F   | 1/13 |
+    7  | F     | F     | T   | 1/13 |
+    8  | F     | F     | F   | 1/13 |
+    
+    Pr(Black) = Pr(w1) + Pr(w2) + Pr(w3) + Pr(w4)
+              = 1/13 + 2/13 + 2/13 + 4/13 = 9/13
+    
+    Pr(not Round) = Pr(w3) + Pr(w4) + Pr(w7) + Pr(w8)
+                  = 2/13 + 4/13 + 1/13 + 1/13
+                  = 8/13
+    
+    Pr(not Round|One v Black) = 7/11 (intuitively) (7 square)/(out of 11 ones or blacks) 
+
+
+4.
+
+    a) Markovian assumptions:
+        I(Node, Parents, Non-Descendants)    
+    
+        I(A, , {B,E})
+        I(B, , {A,C})
+        I(C, {A}, {B,D,E})
+        I(D, {A,B}, {C,E})
+        I(E, {B}, {A,C,D,F,G})
+        I(F, {C,D}, {A,B,E})
+        I(G, {F}, {A,B,C,D,E,H})
+        I(H, {E,F}, {A,B,C,D,E,G})
+ 
+    b) TODO
+        1. d_separated(A, BH, E)
+        2. d_separated(G, D, E)
+        3. d_separated(AB, F, GH)
+    
+    c) P(a,b,c,d,e,f,g,h) = P(a)P(b)P(c|a)P(d|a,b)P(e|b)P(f|c,d)P(g|f)P(h|f)
+    
+    d) Compute P(A=0, B=0) 
+        P(A=0, B=0) = P(A=0) * P(B=0) = 0.8 * 0.3 = 0.24
+
+        The probability of both A and B being 0 is just the multiplication
+        of the two probabilities since A and B are independent
+
+    Compute P(E=1|A=1)
+
+        Since A and E are independent the following is true:
+        P(E=1|A=1) = P(E=1)
+        P(E=1) = P(E=1|B=0)*P(B=0) + P(E=1|B=1)*P(B=1)
+        P(E=1) = 0.9*0.3 + 0.1*0.7 = 0.34 
+    
