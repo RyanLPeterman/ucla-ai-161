@@ -70,8 +70,12 @@ Homework 7:
                   = 2/13 + 4/13 + 1/13 + 1/13
                   = 8/13
     
-    Pr(not Round|One v Black) = 7/11 (intuitively) (7 square)/(out of 11 ones or blacks) 
-
+    Pr(not Round|One v Black) = (Pr(w3) + Pr(w4) + Pr(w7)) / (Pr(w1) + Pr(w2) + Pr(w3) + Pr(w4) + Pr(w5) + Pr(w7)) 
+                              = (2/13 + 4/13 + 1/13) / (1/13 + 2/13 + 2/13 + 4/13 + 1/13 + 1/13)
+                              = 7/11  
+    Given not black, then one and round are independent
+    Given black, then one and round are independent due to the even ratios among
+    the black and not black objects.
 
 4.
 
@@ -87,10 +91,12 @@ Homework 7:
         I(G, {F}, {A,B,C,D,E,H})
         I(H, {E,F}, {A,B,C,D,E,G})
  
-    b) TODO
-        1. d_separated(A, BH, E)
-        2. d_separated(G, D, E)
-        3. d_separated(AB, F, GH)
+    b)  1. d_separated(A, BH, E) -  False, A and E are not d_separated given BH
+            since H is convergent and is given
+        2. d_separated(G, D, E) - True, G and E are not d_separated since one path
+            is blocked by D and the other is blocked by a convergent node
+        3. d_separated(AB, F, GH) - False, AB and GH are not d_separated since
+            there exists an unblocked path between B and H
     
     c) P(a,b,c,d,e,f,g,h) = P(a)P(b)P(c|a)P(d|a,b)P(e|b)P(f|c,d)P(g|f)P(h|f)
     
