@@ -1,0 +1,217 @@
+net
+{
+	propagationenginegenerator1791944048146838126L = "edu.ucla.belief.approx.BeliefPropagationSettings@7d56e6f6";
+	jenginegenerator6060830225489488864L = "edu.ucla.belief.inference.JoinTreeSettings@6923da5a";
+	recoveryenginegenerator6944530267470113528l = "edu.ucla.util.SettingsImpl@608c172b";
+	node_size = (130 55);
+}
+
+node DogBarking
+{
+	states = ("Yes" "No" );
+	position = (738 -280);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable5";
+	label = "DogBarking";
+	excludepolicy = "include whole CPT";
+}
+node SoundSensorHealth
+{
+	states = ("OK" "Broken" );
+	position = (856 -361);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable10";
+	label = "SoundSensorHealth";
+	excludepolicy = "include whole CPT";
+}
+node FamilyHome
+{
+	states = ("No" "Yes" );
+	position = (538 -77);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable3";
+	label = "FamilyHome";
+	excludepolicy = "include whole CPT";
+}
+node HearableBarking
+{
+	states = ("Yes" "No" );
+	position = (606 -271);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable8";
+	label = "HearableBarking";
+	excludepolicy = "include whole CPT";
+}
+node LightSensorHealth
+{
+	states = ("OK" "Broken" );
+	position = (269 -189);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable11";
+	label = "LightSensorHealth";
+	excludepolicy = "include whole CPT";
+}
+node SoundSensor
+{
+	states = ("On" "Off" );
+	position = (612 -435);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable6";
+	label = "SoundSensor";
+	excludepolicy = "include whole CPT";
+}
+node Battery
+{
+	states = ("OK" "Dead" );
+	position = (473 -286);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable9";
+	label = "Battery";
+	excludepolicy = "include whole CPT";
+}
+node DogOutside
+{
+	states = ("Yes" "No" );
+	position = (633 -184);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable4";
+	label = "DogOutside";
+	excludepolicy = "include whole CPT";
+}
+node DogBowelTrouble
+{
+	states = ("Yes" "No" );
+	position = (727 -82);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable13";
+	label = "DogBowelTrouble";
+	excludepolicy = "include whole CPT";
+}
+node OutdoorLight
+{
+	states = ("On" "Off" );
+	position = (414 -181);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable12";
+	label = "OutdoorLight";
+	excludepolicy = "include whole CPT";
+}
+node LightSensor
+{
+	states = ("On" "Off" );
+	position = (362 -434);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable7";
+	label = "LightSensor";
+	excludepolicy = "include whole CPT";
+}
+node ExpectingGuests
+{
+	states = ("Yes" "No" );
+	position = (336 -72);
+	diagnosistype = "AUXILIARY";
+	DSLxSUBMODEL = "null";
+	ismapvariable = "false";
+	ID = "variable2";
+	label = "ExpectingGuests";
+	excludepolicy = "include whole CPT";
+}
+potential ( DogBarking | DogOutside )
+{
+	data = ((	0.5034412365121027	0.49655876348789735	)
+		(	0.4929947460595447	0.5070052539404554	));
+}
+potential ( SoundSensorHealth | )
+{
+	data = (	0.9142	0.0858	);
+}
+potential ( FamilyHome | )
+{
+	data = (	0.685	0.315	);
+}
+potential ( HearableBarking | )
+{
+	data = (	0.4832	0.5168	);
+}
+potential ( LightSensorHealth | )
+{
+	data = (	0.96735	0.03265	);
+}
+potential ( SoundSensor | HearableBarking DogBarking SoundSensorHealth Battery )
+{
+	data = (((((	0.9691118399036209	0.03088816009637909	)
+		(	0.7048872180451128	0.2951127819548872	))
+		((	0.3850085178875639	0.6149914821124361	)
+		(	0.2328767123287671	0.7671232876712328	)))
+		(((	0.7835802769006558	0.21641972309934418	)
+		(	0.6272189349112426	0.3727810650887574	))
+		((	0.32038834951456313	0.6796116504854369	)
+		(	0.0	1.0	))))
+		((((	0.16192921327709517	0.8380707867229048	)
+		(	0.14042553191489363	0.8595744680851064	))
+		((	0.11522633744855967	0.8847736625514403	)
+		(	0.07142857142857142	0.9285714285714286	)))
+		(((	0.02460225814729279	0.9753977418527072	)
+		(	0.03461538461538462	0.9653846153846154	))
+		((	0.043142756927393895	0.9568572430726061	)
+		(	0.0	1.0	)))));
+}
+potential ( Battery | )
+{
+	data = (	0.9664	0.0336	);
+}
+potential ( DogOutside | FamilyHome DogBowelTrouble )
+{
+	data = (((	0.9275820113248163	0.07241798867518368	)
+		(	0.8709169291991378	0.1290830708008622	))
+		((	0.8831568330811901	0.11684316691880989	)
+		(	0.17113594040968344	0.8288640595903166	)));
+}
+potential ( DogBowelTrouble | )
+{
+	data = (	0.7821	0.2179	);
+}
+potential ( OutdoorLight | FamilyHome ExpectingGuests )
+{
+	data = (((	0.9361904761904762	0.06380952380952382	)
+		(	0.9220493358633776	0.0779506641366224	))
+		((	0.9070525886669385	0.09294741133306156	)
+		(	0.28190798024434627	0.7180920197556537	)));
+}
+potential ( LightSensor | OutdoorLight LightSensorHealth Battery )
+{
+	data = ((((	0.9690821741241066	0.03091782587589347	)
+		(	0.7156234598324298	0.28437654016757025	))
+		((	0.7562595809913132	0.24374041900868676	)
+		(	0.5633802816901409	0.43661971830985913	)))
+		(((	0.1161847789963443	0.8838152210036557	)
+		(	0.09391304347826086	0.9060869565217391	))
+		((	0.1085814360770578	0.8914185639229422	)
+		(	0.0	1.0	))));
+}
+potential ( ExpectingGuests | )
+{
+	data = (	0.1489	0.8511	);
+}

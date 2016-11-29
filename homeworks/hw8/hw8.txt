@@ -1,0 +1,48 @@
+Name: Ryan Peterman
+UID: 704269982
+
+CS 161 - Homework 8
+
+1. see test.net file
+
+To make Pr(D|T) >= 0.3 use the following constraints:
+    - disease >= 0.8942%
+    - false positive <= 0.2219%
+    - there exists no constraint for false positive that can make
+    Pr(D|T) >= 0.3
+
+2. a. Most likely instantiation given light sensor and not sound sensor:
+    - SoundSensorHealth => OK
+    - DogBarking => No
+    - HearableBarking => No
+    - Battery => OK
+    - DogOutside => Yes
+    - OutdoorLight => On
+    - LightSensorHealth => OK
+    - DogBowelTrouble => Yes
+    - FamilyHome => No
+    - ExpectingGuests => No
+
+    Obtained the answer by setting up the causal structure and loading
+    in the sambot.dat file. Locked in the given values and viewed the 
+    monitors of the other nodes after the givens were factored in.
+
+b. Most likely instantiation of sensors given that family is home and
+no guests are expected
+    - LightSensor => Off
+    - SoundSensor => Off
+ 
+    Obtained the answer by setting up the causal structure and loading
+    in the sambot.dat file. Locked in the given values and viewed the 
+    monitors of the other nodes after the givens were factored in.
+
+c. Smallest set of variables Z in the network that make the two sensors
+independent.
+    Z = {Battery, FamilyHome}
+
+    Both Battery and FamilyHome are divergent nodes that cover all paths
+    from SoundSensor to LightSensor in the Bayesian network. If these
+    two values are known then LightSensor and SoundSensor will be d_separated
+
+d. Type of network constructed = multiply-connected network
+    (There are cycles in the causal structure)
