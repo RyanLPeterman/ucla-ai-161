@@ -8,7 +8,7 @@ CS 161 - Homework 8
 To make Pr(D|T) >= 0.3 use the following constraints:
     - disease >= 0.8942%
     - false positive <= 0.2219%
-    - there exists no constraint for false positive that can make
+    - there exists no constraint for false negative that can make
     Pr(D|T) >= 0.3
 
 2. a. Most likely instantiation given light sensor and not sound sensor:
